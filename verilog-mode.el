@@ -3316,7 +3316,13 @@ See also `verilog-font-lock-extra-types'.")
                   (list ;; anchored-highlighter
                    (concat "\\_<\\(" verilog-symbol-re "\\)"
                            " *\\(" verilog-range-re "\\)?*")
-                   nil nil '(1 font-lock-variable-name-face))))))
+                   ;; pre-form: returns point upto which fontification is done
+                   ;; Tries to find a semicolon first
+                   '(let ((semicolon (save-excursion (search-forward ";" nil t))))
+                      (cond ((not (eq semicolon nil)) semicolon)
+                            (t (point-max))))
+                   nil
+                   '(1 font-lock-variable-name-face))))))
 
 
   (setq verilog-font-lock-keywords-2
@@ -3973,6 +3979,10 @@ Key bindings specific to `verilog-mode-map' are:
               ;; verilog-beg-of-defun.
 	      nil
 	    'verilog-beg-of-defun)))
+
+  ;; Stuff for multiline font-lock
+  (set (make-local-variable 'font-lock-multiline) t)
+
   ;;------------------------------------------------------------
   ;; now hook in 'verilog-highlight-include-files (eldo-mode.el&spice-mode.el)
   ;; all buffer local:
